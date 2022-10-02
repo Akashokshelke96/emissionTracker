@@ -10,9 +10,9 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Data
 @Table(name = "district")
 public class District {
 
@@ -22,20 +22,21 @@ public class District {
     private Integer districtId;
 
 
-
     @Column(name = "district_name")
     private String districtName;
 
-
-    @Column(name = "zip")
-    private String districtZip;
     @ManyToOne(fetch = FetchType.LAZY,optional = false)
     @JsonIgnore
     @JoinColumn(name = "city_id")
     private City city;
 
+    @Column(name = "zip")
+    private String districtZip;
+
+
 
     @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy="district",cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    @Column(name = "sensor_list")
     private List<Sensor> sensorList;
 }

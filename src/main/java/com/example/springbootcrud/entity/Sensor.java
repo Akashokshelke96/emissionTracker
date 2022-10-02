@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 @Table(name = "sensor")
 public class Sensor {
 
@@ -22,16 +21,12 @@ public class Sensor {
     @Column(name = "sensor_id")
     private Integer sensorId;
 
-    @Column(name = "sensor_Name")
+    @Column(name = "sensor_name")
     private String sensorName;
 
     @ManyToOne(fetch = FetchType.EAGER,optional = false)
     @JsonIgnore
     @JoinColumn(name = "district_id")
     private District district;
-
-    @LazyCollection(LazyCollectionOption.FALSE)
-    @OneToMany(mappedBy = "sensor" , cascade = CascadeType.ALL,fetch = FetchType.EAGER)
-    private List<Reading> readingList;
 
    }

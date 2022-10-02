@@ -21,7 +21,7 @@ public class CityHall {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "city_hall_Id")
+    @Column(name = "city_hall_id")
     private Integer cityHallId;
 
     @Column(name = "city_hall_name")
