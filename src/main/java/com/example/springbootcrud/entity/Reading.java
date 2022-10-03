@@ -17,11 +17,11 @@ public class Reading {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column
+    @Column(name = "reading_id")
     private Integer readingId;
 
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:SS")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Column(name = "reading_time")
     private LocalDateTime readingTime;
 

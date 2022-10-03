@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class ReadingController {
@@ -19,25 +18,31 @@ public class ReadingController {
      @Autowired
      ReadingService readingService;
 
-    @GetMapping("/district/{sensorId}/reading")
-    public List<ReadingResponse> getAllReading(@PathVariable(value = "sensorId") Integer sensorId){
+    @GetMapping("/district/readings")
+    public ResponseEntity<List<ReadingResponse>> getAllReadings(){
         return readingService.getAllReadings();
     }
 
-    @GetMapping("/district/{sensorId}/reading")
-    public ResponseEntity<List<ReadingResponse>> getReadingBySensorId(@PathVariable(value = "sensorId") Integer sensorId){
-        return readingService.getReadingBySensorId(sensorId);
+    @GetMapping("/district/readings/{sensorId}")
+    public ResponseEntity<List<ReadingResponse>> getReadingsBySensorId(@PathVariable(value = "sensorId") Integer sensorId) throws ReadingException {
+        return ResponseEntity.ok(readingService.getReadingsBySensorId(sensorId));
     }
 
-    @DeleteMapping("/district/{sensorId}/reading")
-    public String deleteReadingBySensorId(@PathVariable(value = "sensorId") Integer sensorId){
-        return readingService.deleteReadingBySensorId(sensorId);
+//    @DeleteMapping("/district/{sensorId}/reading")
+//    public String deleteReadingBySensorId(@PathVariable(value = "sensorId") Integer sensorId){
+//        return readingService.deleteReadingBySensorId(sensorId);
+//    }
+
+
+    @DeleteMapping("/district/sensor/{readingId}")
+    public String deleteReadingByReadingId(@PathVariable(value = "readingId") Integer readingId) {
+        return readingService.deleteReadingByReadingId(readingId);
+
+
+//    @PostMapping("/district/{sensorId}/reading")
+//    public ResponseEntity<ReadingResponse> createReading(@Valid @RequestBody ReadingRequest readingRequest,@PathVariable(value = "sensorId") Integer sensorId) throws ReadingException {
+//        return ResponseEntity.ok( readingService.createNewReading(readingRequest));
+//    }
+
     }
-
-    @PostMapping("/district/{sensorId}/reading")
-    public ResponseEntity<ReadingResponse> createReading(@Valid @RequestBody ReadingRequest readingRequest,@PathVariable(value = "sensorId") Integer sensorId) throws ReadingException {
-        return ResponseEntity.ok( readingService.createNewReading(readingRequest));
-    }
-
-
 }

@@ -2,9 +2,17 @@ package com.example.springbootcrud.requests;
 
 import com.example.springbootcrud.entity.Sensor;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ReadingRequest {
 
     private static final long serialVersionUID = 1L;
@@ -16,8 +24,7 @@ public class ReadingRequest {
     @JsonProperty(value = "value")
     private Double value;
 
-
     @JsonProperty(value = "sensor_id")
-    private Sensor sensor;
+    private Integer sensorId;
 
 }

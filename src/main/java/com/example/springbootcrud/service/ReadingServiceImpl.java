@@ -10,15 +10,15 @@ import com.example.springbootcrud.response.ReadingResponse;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Service
-public class ReadingServiceImpl implements ReadingService{
+@Component
+public class ReadingServiceImpl implements ReadingService {
 
 
     @Autowired
@@ -28,52 +28,82 @@ public class ReadingServiceImpl implements ReadingService{
     SensorRepository sensorRepository;
 
     @Override
-    public List<ReadingResponse> getAllReadings() {
-        return null;
-    }
-
-    @Override
-    public ResponseEntity<ReadingResponse> getReadingByReadingId(Integer readingId) throws ReadingException {
-        Optional<Reading> readingByReadingId = readingRepository.findById(readingId);
-        if(readingByReadingId.isPresent()) {
-            Reading reading= readingByReadingId.get();
+    public ResponseEntity<List<ReadingResponse>> getAllReadings() {
+        List<Reading> readings = readingRepository.findAll();
+        List<ReadingResponse> readingResponses = new ArrayList<>();
+        for (Reading reading : readings) {
             ReadingResponse readingResponse = new ReadingResponse();
             BeanUtils.copyProperties(reading, readingResponse);
             readingResponse.setSensorId(reading.getSensor().getSensorId());
-            readingResponse.setDate(String.valueOf(LocalDateTime.now()));
-            return ResponseEntity.ok(readingResponse);
+            readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
+            readingResponses.add(readingResponse);
         }
-        else{
+        return ResponseEntity.ok(readingResponses);
+    }
+
+    @Override
+    public ReadingResponse getReadingByReadingId(Integer readingId) throws ReadingException {
+        Optional<Reading> readingByReadingId = readingRepository.findById(readingId);
+        if (readingByReadingId.isPresent()) {
+            Reading reading = readingByReadingId.get();
+            ReadingResponse readingResponse = new ReadingResponse();
+            BeanUtils.copyProperties(reading, readingResponse);
+            readingResponse.setSensorId(reading.getSensor().getSensorId());
+            readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
+            return readingResponse;
+        } else {
             throw new ReadingException("Invalid Reading Id");
         }
     }
 
     @Override
-    public ResponseEntity<List<ReadingResponse>> getReadingBySensorId(Integer sensorId) {
-        List<Reading> readingBySensorId = readingRepository.findBySensorId(sensorId);
-        List<ReadingResponse> readingResponseBySensorId = new ArrayList<>();
-        for(Reading reading:readingBySensorId){
-            ReadingResponse readingResponse = new ReadingResponse();
-            BeanUtils.copyProperties(reading,readingResponse);
-            readingResponse.setSensorId(reading.getSensor().getSensorId());
-            readingResponse.setDate(String.valueOf(LocalDateTime.now()));
-            readingResponseBySensorId.add(readingResponse);
+    public List<ReadingResponse> getReadingsBySensorId(Integer sensorId) throws ReadingException {
+        List<Reading> readingsBySensorId = readingRepository.findBySensor_sensorId(sensorId);
+        List<ReadingResponse> readingResponses = new ArrayList<>();
+        if (!readingsBySensorId.isEmpty()) {
+            for (Reading reading : readingsBySensorId) {
+                ReadingResponse readingResponse = new ReadingResponse();
+                BeanUtils.copyProperties(reading, readingResponse);
+                readingResponse.setSensorId(reading.getSensor().getSensorId());
+                readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
+                readingResponses.add(readingResponse);
+            }
+            return readingResponses;
+
+        } else {
+            throw new ReadingException("Invalid Reading Id");
         }
-        return ResponseEntity.ok(readingResponseBySensorId );
+
     }
 
     @Override
-    public String deleteReadingBySensorId(Integer sensorId) {
-        Optional<Sensor> sensor = sensorRepository.findById(sensorId);
-        if(sensor.isPresent()){
-            readingRepository.findById(sensorId);
+    public String deleteReadingByReadingId(Integer readingId) {
+        Optional<Reading> reading = readingRepository.findById(readingId);
+        if (reading.isPresent()) {
+            readingRepository.deleteById(readingId);
+            return "Reading Deleted Successfully";
         }
-        return null;
+        return "Could Not Found Reading!!";
     }
 
     @Override
     public ReadingResponse createNewReading(ReadingRequest readingRequest) throws ReadingException {
-        return null;
+        Reading reading = new Reading();
+
+        BeanUtils.copyProperties(readingRequest, reading);
+        Optional<Sensor> sensor = sensorRepository.findById(readingRequest.getSensorId());
+
+        if (sensor.isPresent()) {
+            reading.setReadingTime(readingRequest.getReadingTime());
+            reading.setValue(readingRequest.getValue());
+            reading.getSensor().setSensorId(readingRequest.getSensorId());
+            ReadingResponse readingResponse = new ReadingResponse();
+            BeanUtils.copyProperties(reading, readingResponse);
+            readingRepository.save(reading);
+            return readingResponse;
+        } else {
+            throw new ReadingException("Reading with reading request not Found");
+        }
     }
 
     @Override

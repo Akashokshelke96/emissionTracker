@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public interface ReadingService {
@@ -16,16 +15,18 @@ public interface ReadingService {
     //between two date time co2 data
     //by city id and by cityhall id
 
-    List<ReadingResponse> getAllReadings();
+    ResponseEntity<List<ReadingResponse>> getAllReadings();
 
-    ResponseEntity<List<ReadingResponse>> getReadingBySensorId(Integer sensorId);
+    List<ReadingResponse> getReadingsBySensorId(Integer sensorId) throws ReadingException;
 
-    String deleteReadingBySensorId(Integer sensorId);
+//    String deleteReadingBySensorId(Integer sensorId);
+
+    String deleteReadingByReadingId(Integer readingId);
 
     ReadingResponse createNewReading(ReadingRequest readingRequest) throws ReadingException;
 
     ReadingResponse updateSensorReading(ReadingRequest readingRequest, Integer readingId) throws ReadingException;
-    ResponseEntity<ReadingResponse> getReadingByReadingId(Integer readingId) throws ReadingException;
+    ReadingResponse getReadingByReadingId(Integer readingId) throws ReadingException;
 
 
 }

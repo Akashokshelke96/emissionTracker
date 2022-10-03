@@ -25,7 +25,7 @@ public class ReadingResponse implements Serializable {
     private Integer readingId;
 
 
-    @JsonProperty(value = "reading_time")
+    @JsonProperty(value = "readingTime")
     private LocalDateTime readingTime;
 
     @JsonProperty(value = "value")
@@ -34,7 +34,7 @@ public class ReadingResponse implements Serializable {
     @JsonProperty(value = "date")
     private String date;
 
-    @JsonProperty(value = "sensor_id")
+    @JsonProperty(value = "sensorId")
     private Integer sensorId;
 
 }
