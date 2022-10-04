@@ -1,6 +1,5 @@
 package com.example.springbootcrud.service;
 
-import com.example.springbootcrud.entity.Reading;
 import com.example.springbootcrud.exception.ReadingException;
 import com.example.springbootcrud.requests.ReadingRequest;
 import com.example.springbootcrud.response.ReadingResponse;
@@ -19,7 +18,7 @@ public interface ReadingService {
 
     List<ReadingResponse> getReadingsBySensorId(Integer sensorId) throws ReadingException;
 
-//    String deleteReadingBySensorId(Integer sensorId);
+    String deleteReadingBySensorId(Integer sensorId);
 
     String deleteReadingByReadingId(Integer readingId);
 
@@ -29,4 +28,5 @@ public interface ReadingService {
     ReadingResponse getReadingByReadingId(Integer readingId) throws ReadingException;
 
 
+    ResponseEntity<List<ReadingResponse>> getReadingsByDistrictId(Integer districtId);
 }
