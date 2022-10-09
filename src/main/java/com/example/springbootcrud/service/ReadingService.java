@@ -5,7 +5,10 @@ import com.example.springbootcrud.requests.ReadingRequest;
 import com.example.springbootcrud.response.ReadingResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -13,8 +16,7 @@ public interface ReadingService {
     //get reading by ReadingId,sensorId,by districtId, Date time save,
     //between two date time co2 data
     //by city id and by cityhall id
-
-    ResponseEntity<List<ReadingResponse>> getAllReadings();
+    List<ReadingResponse> getAllReadings();
 
     List<ReadingResponse> getReadingsBySensorId(Integer sensorId) throws ReadingException;
 
@@ -28,5 +30,11 @@ public interface ReadingService {
     ReadingResponse getReadingByReadingId(Integer readingId) throws ReadingException;
 
 
-    ResponseEntity<List<ReadingResponse>> getReadingsByDistrictId(Integer districtId);
+    List<ReadingResponse> getReadingsByDistrictId(Integer districtId);
+
+    List<ReadingResponse> getReadingsByCityId(Integer cityId);
+
+    List<ReadingResponse> getReadingsByCityHallId(Integer cityHallId);
+
+    List<ReadingResponse> getReadingsBetweenDates(String startDate, String endDate);
 }

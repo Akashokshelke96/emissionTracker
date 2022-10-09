@@ -4,9 +4,7 @@ import com.example.springbootcrud.entity.District;
 import com.example.springbootcrud.entity.Reading;
 import com.example.springbootcrud.entity.Sensor;
 import com.example.springbootcrud.exception.ReadingException;
-import com.example.springbootcrud.repository.DistrictRepository;
-import com.example.springbootcrud.repository.ReadingRepository;
-import com.example.springbootcrud.repository.SensorRepository;
+import com.example.springbootcrud.repository.*;
 import com.example.springbootcrud.requests.ReadingRequest;
 import com.example.springbootcrud.response.ReadingResponse;
 import org.springframework.beans.BeanUtils;
@@ -14,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +32,10 @@ public class ReadingServiceImpl implements ReadingService {
     @Autowired
     DistrictRepository districtRepository;
 
+
+
     @Override
-    public ResponseEntity<List<ReadingResponse>> getAllReadings() {
+    public List<ReadingResponse> getAllReadings() {
         List<Reading> readings = readingRepository.findAll();
         List<ReadingResponse> readingResponses = new ArrayList<>();
         for (Reading reading : readings) {
@@ -43,7 +45,7 @@ public class ReadingServiceImpl implements ReadingService {
             readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
             readingResponses.add(readingResponse);
         }
-        return ResponseEntity.ok(readingResponses);
+        return readingResponses;
     }
 
     @Override
@@ -84,7 +86,7 @@ public class ReadingServiceImpl implements ReadingService {
 
 
     @Override
-    public ResponseEntity<List<ReadingResponse>> getReadingsByDistrictId(Integer districtId) {
+    public List<ReadingResponse> getReadingsByDistrictId(Integer districtId) {
         List<Reading> readingsByDistrictId = readingRepository.findByDistrictId(districtId);
 //        Optional<District> district = districtRepository.findById(districtId);
         List<ReadingResponse> readingResponses = new ArrayList<>();
@@ -95,8 +97,58 @@ public class ReadingServiceImpl implements ReadingService {
             readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
             readingResponses.add(readingResponse);
         }
-        return ResponseEntity.ok(readingResponses);
+        return readingResponses;
         }
+
+    @Override
+    public List<ReadingResponse> getReadingsByCityId(Integer cityId) {
+        List<Reading> readingsByCityId = readingRepository.findByCityId(cityId);
+
+        List<ReadingResponse> readingResponses = new ArrayList<>();
+        for(Reading reading:readingsByCityId){
+            ReadingResponse readingResponse = new ReadingResponse();
+            BeanUtils.copyProperties(reading, readingResponse);
+            readingResponse.setSensorId(reading.getSensor().getSensorId());
+            readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
+            readingResponses.add(readingResponse);
+        }
+        return readingResponses;
+    }
+
+    @Override
+    public List<ReadingResponse> getReadingsByCityHallId(Integer cityHallId) {
+
+        List<Reading> readingsByCityHallId = readingRepository.findByCityHallId(cityHallId);
+
+        List<ReadingResponse> readingResponses = new ArrayList<>();
+        for(Reading reading:readingsByCityHallId){
+            ReadingResponse readingResponse = new ReadingResponse();
+            BeanUtils.copyProperties(reading, readingResponse);
+            readingResponse.setSensorId(reading.getSensor().getSensorId());
+            readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
+            readingResponses.add(readingResponse);
+        }
+        return readingResponses;
+    }
+
+    @Override
+    public List<ReadingResponse> getReadingsBetweenDates(String startDate, String endDate) {
+        //convert string to date in mm/DD/yyyy
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate start = LocalDate.parse(startDate, formatter);
+        LocalDate end = LocalDate.parse(endDate, formatter);
+        List<Reading> readingsBetweenDates = readingRepository.getReadingsBetweenDates(start,end);
+        List<ReadingResponse> readingResponses = new ArrayList<>();
+        for(Reading reading:readingsBetweenDates){
+            ReadingResponse readingResponse = new ReadingResponse();
+            BeanUtils.copyProperties(reading, readingResponse);
+            readingResponse.setSensorId(reading.getSensor().getSensorId());
+            readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
+            readingResponses.add(readingResponse);
+        }
+        return readingResponses;
+
+    }
 
     @Override
     public String deleteReadingByReadingId(Integer readingId) {
@@ -111,17 +163,18 @@ public class ReadingServiceImpl implements ReadingService {
     @Override
     public ReadingResponse createNewReading(ReadingRequest readingRequest) throws ReadingException {
         Reading reading = new Reading();
-
         BeanUtils.copyProperties(readingRequest, reading);
         Optional<Sensor> sensor = sensorRepository.findById(readingRequest.getSensorId());
 
         if (sensor.isPresent()) {
-            reading.setReadingTime(readingRequest.getReadingTime());
+            reading.setReadingTime(LocalDateTime.now());
             reading.setValue(readingRequest.getValue());
-            reading.getSensor().setSensorId(readingRequest.getSensorId());
+            reading.setSensor(sensor.get());
+            reading = readingRepository.save(reading);
             ReadingResponse readingResponse = new ReadingResponse();
             BeanUtils.copyProperties(reading, readingResponse);
-            readingRepository.save(reading);
+            readingResponse.setSensorId(reading.getSensor().getSensorId());
+            readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
             return readingResponse;
         } else {
             throw new ReadingException("Reading with reading request not Found");

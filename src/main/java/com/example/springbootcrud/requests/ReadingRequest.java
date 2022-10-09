@@ -19,13 +19,10 @@ public class ReadingRequest implements Serializable {
     private static final long serialVersionUID = 1L;
 
 
-    @JsonProperty(value = "reading_time")
-    private LocalDateTime readingTime;
-
     @JsonProperty(value = "value")
     private Double value;
 
-    @JsonProperty(value = "sensor_id")
+    @JsonProperty(value = "sensorId")
     private Integer sensorId;
 
 }
