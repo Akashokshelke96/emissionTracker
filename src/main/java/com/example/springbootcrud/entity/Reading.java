@@ -25,7 +25,7 @@ public class Reading {
     @Column(name = "reading_time")
     private LocalDateTime readingTime;
 
-    @Column(name = "value")
+    @Column(name = "reading_value")
     private Double value;
 
 

@@ -20,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Data
 @Component
 public class CityHallResponse implements Serializable {
 
