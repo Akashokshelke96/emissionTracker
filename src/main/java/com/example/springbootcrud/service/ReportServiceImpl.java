@@ -4,7 +4,9 @@ import com.example.springbootcrud.entity.*;
 import com.example.springbootcrud.repository.*;
 import com.example.springbootcrud.requests.ReportRequest;
 import com.example.springbootcrud.response.CityReportResponse;
+import com.example.springbootcrud.response.DistrictReportResponse;
 import com.example.springbootcrud.response.ReportResponse;
+import com.example.springbootcrud.response.SensorReportResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -76,9 +78,54 @@ public class ReportServiceImpl implements ReportService {
                 cityReportResponses.add(cityReportResponse);
             }
             reportResponse.setCities(cityReportResponses);
-            //get all sensor readings  against city hall name within date range
-            //  List<Reading> requestedReadingByCityHallIdBetweenDates = readingRepository.getCityHallIdBetweenDates(reportRequest.getCityHallId(), reportRequest.getFromDate(), reportRequest.getToDate());
 
+            List<DistrictReportResponse> districtsReportResponses = new ArrayList<>();
+
+            for(District district: districts){
+                List<Reading> districtReadings = readingRepository.findByDistrictId(district.getDistrictId());
+                DistrictReportResponse districtsReportResponse = new DistrictReportResponse();
+                districtsReportResponse.setDistrictId(district.getDistrictId());
+                districtsReportResponse.setDistrictName(district.getDistrictName());
+                List<Double> readingValues = districtReadings.stream().map(Reading::getValue).collect(Collectors.toList());
+
+                DoubleSummaryStatistics doubleSummaryDistrictReadingsStatistics = new DoubleSummaryStatistics();
+                for (Double d : readingValues) {
+
+                    doubleSummaryDistrictReadingsStatistics.accept(d);
+                }
+                districtsReportResponse.setDistrictMax(doubleSummaryDistrictReadingsStatistics.getMax());
+                districtsReportResponse.setDistrictMin(doubleSummaryDistrictReadingsStatistics.getMin());
+                districtsReportResponse.setDistrictAverage(doubleSummaryDistrictReadingsStatistics.getAverage());
+
+                districtsReportResponses.add(districtsReportResponse);
+            }
+            reportResponse.setDistricts(districtsReportResponses);
+
+
+
+
+
+            List<SensorReportResponse> sensorReportResponses = new ArrayList<>();
+
+            for(Sensor sensor: sensors){
+                List<Reading> sensorReadings = readingRepository.findBySensor_sensorId(sensor.getSensorId());
+                SensorReportResponse sensorsReportResponse = new SensorReportResponse();
+                sensorsReportResponse.setSensorId(sensor.getSensorId());
+                sensorsReportResponse.setSensorName(sensor.getSensorName());
+                List<Double> readingValues = sensorReadings.stream().map(Reading::getValue).collect(Collectors.toList());
+
+                DoubleSummaryStatistics doubleSummarySensorReadingsStatistics = new DoubleSummaryStatistics();
+                for (Double d : readingValues) {
+
+                    doubleSummarySensorReadingsStatistics.accept(d);
+                }
+                sensorsReportResponse.setSensorMax(doubleSummarySensorReadingsStatistics.getMax());
+                sensorsReportResponse.setSensorMin(doubleSummarySensorReadingsStatistics.getMin());
+                sensorsReportResponse.setSensorAverage(doubleSummarySensorReadingsStatistics.getAverage());
+
+                sensorReportResponses.add(sensorsReportResponse);
+            }
+            reportResponse.setSensors(sensorReportResponses);
         }
         return reportResponse;
     }

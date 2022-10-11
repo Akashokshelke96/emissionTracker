@@ -3,11 +3,8 @@ package com.example.springbootcrud.response;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.sun.istack.NotNull;
 import lombok.*;
-import org.springframework.stereotype.Component;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -38,6 +35,13 @@ public class ReportResponse implements Serializable {
 
     @JsonProperty(value = "Cities")
     private List<CityReportResponse> cities;
+
+    @JsonProperty(value = "Districts")
+    private List<DistrictReportResponse> districts;
+
+    @JsonProperty(value = "Sensors")
+    private List<SensorReportResponse> sensors;
+
 
 //
 //    private CityHallReportResponse cityHall;

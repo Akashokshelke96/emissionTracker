@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DistrictsReportResponse {
+public class DistrictReportResponse {
 
     private Integer districtId;
     private  String districtName;

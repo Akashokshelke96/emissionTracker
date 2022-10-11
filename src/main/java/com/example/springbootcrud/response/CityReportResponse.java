@@ -18,7 +18,7 @@ public class CityReportResponse {
     private double cityMin;
     private long numberOfSensors;
     private long numberOfDistricts;
-    private List<DistrictsReportResponse> districts;
+    private List<DistrictReportResponse> districts;
 
 
 
