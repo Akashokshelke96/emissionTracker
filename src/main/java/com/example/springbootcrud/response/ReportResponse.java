@@ -33,9 +33,14 @@ public class ReportResponse implements Serializable {
     @JsonProperty(value = "city_hall_max")
     private double cityHallMax;
 
+    @JsonProperty(value = "city_hall_min")
     private double cityHallMin;
 
-    private CityHallReportResponse cityHall;
+    @JsonProperty(value = "Cities")
+    private List<CityReportResponse> cities;
+
+//
+//    private CityHallReportResponse cityHall;
 
 
 }

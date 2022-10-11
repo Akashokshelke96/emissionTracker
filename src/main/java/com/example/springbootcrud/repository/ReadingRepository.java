@@ -26,14 +26,19 @@ public interface ReadingRepository extends JpaRepository<Reading, Integer> {
     @Query(value = "select * from reading where sensor_id in (select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = 0?))); ", nativeQuery = true)
     List<Reading> findByCityHallId(Integer cityHallId);
 
-    @Query(value = "select value from reading where sensor_id in (select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = 0?))); ", nativeQuery = true)
+    @Query(value = "select reading_value from reading where sensor_id in (select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = 0?))); ", nativeQuery = true)
     List<Double> findReadingsByCityHallId(Integer cityHallId);
 
     @Query(value = "SELECT * FROM reading r WHERE  r.reading_time BETWEEN :startDate AND :endDate", nativeQuery = true)
     List<Reading> getReadingsBetweenDates(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    @Query(value = "select * from reading r where sensor_id in (select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = :cityHallId ))where  r.reading_time between:startDate and :endDate); ", nativeQuery = true)
-    List<Reading> findByCityHallIdBetweenDates(@Param("cityHallId") Integer cityHallId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+    @Query(value = "select * from reading r where sensor_id in (select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = :cityHallId))) and reading_time between :startDate and :endDate", nativeQuery = true)
+    List<Reading> getCityHallIdBetweenDates(@Param("cityHallId") Integer cityHallId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
+
+   /* @Query(value = "select max(value) from reading r where sensor_id in (select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = :cityHallId))) and reading_time between :startDate and :endDate", nativeQuery = true)
+    double findMaxReadingByCityHallIdBetweenDates(Integer cityHallId, LocalDate fromDate, LocalDate toDate);*/
 }
 
 //    (@Param("startDate") LocalDate date, @Param("endDate") LocalDate date2
