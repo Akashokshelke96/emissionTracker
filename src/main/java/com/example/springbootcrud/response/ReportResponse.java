@@ -36,11 +36,7 @@ public class ReportResponse implements Serializable {
     @JsonProperty(value = "Cities")
     private List<CityReportResponse> cities;
 
-    @JsonProperty(value = "Districts")
-    private List<DistrictReportResponse> districts;
 
-    @JsonProperty(value = "Sensors")
-    private List<SensorReportResponse> sensors;
 
 
 //
