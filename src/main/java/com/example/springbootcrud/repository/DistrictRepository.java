@@ -12,10 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Integer> {
+   List<District> findByCity_cityId(Integer cityId);
 
-   List<District> findByCity_CityId(Optional<City> cityId);
-
-   @Query(value = "select district_id from district where city_id in(select city_id from  city where city_hall_id = 0?)",nativeQuery = true)
-   List<District> findByCityHallId(Integer cityHallId);
 
 }

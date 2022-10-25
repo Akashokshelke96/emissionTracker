@@ -13,4 +13,6 @@ public interface SensorRepository extends JpaRepository<Sensor,Integer> {
 
     @Query(value = "select sensor_id from sensor where district_id in(select district_id from district where city_id in(select city_id from  city where city_hall_id = 0?)); ",nativeQuery = true)
     List<Sensor> findByCityHallId(Integer cityHallId);
+
+    List<Sensor> findByDistrict_districtId(Integer cityId);
 }

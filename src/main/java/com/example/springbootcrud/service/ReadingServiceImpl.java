@@ -40,7 +40,11 @@ public class ReadingServiceImpl implements ReadingService {
         List<ReadingResponse> readingResponses = new ArrayList<>();
         for (Reading reading : readings) {
             ReadingResponse readingResponse = new ReadingResponse();
-            BeanUtils.copyProperties(reading, readingResponse);
+           // BeanUtils.copyProperties(reading, readingResponse);
+            readingResponse.setReadingId(reading.getReadingId());
+            readingResponse.setReadingTime(reading.getReadingTime());
+            readingResponse.setDate(String.valueOf(reading.getReadingTime().toLocalDate()));
+            readingResponse.setValue(reading.getValue());
             readingResponse.setSensorId(reading.getSensor().getSensorId());
             readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
             readingResponses.add(readingResponse);
@@ -72,6 +76,7 @@ public class ReadingServiceImpl implements ReadingService {
             for (Reading reading : readingsBySensorId) {
                 ReadingResponse readingResponse = new ReadingResponse();
                 BeanUtils.copyProperties(reading, readingResponse);
+
                 readingResponse.setSensorId(reading.getSensor().getSensorId());
                 readingResponse.setDate(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(reading.getReadingTime()));
                 readingResponses.add(readingResponse);
@@ -165,7 +170,6 @@ public class ReadingServiceImpl implements ReadingService {
         Reading reading = new Reading();
         BeanUtils.copyProperties(readingRequest, reading);
         Optional<Sensor> sensor = sensorRepository.findById(readingRequest.getSensorId());
-
         if (sensor.isPresent()) {
             reading.setReadingTime(LocalDateTime.now());
             reading.setValue(readingRequest.getValue());
@@ -185,6 +189,7 @@ public class ReadingServiceImpl implements ReadingService {
     public ReadingResponse updateSensorReading(ReadingRequest readingRequest, Integer readingId) throws ReadingException {
         return null;
     }
+
 
     @Override
     public String deleteReadingBySensorId(Integer sensorId) {

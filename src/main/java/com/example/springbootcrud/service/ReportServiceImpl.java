@@ -37,23 +37,23 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public ReportResponse getReportByCityHallId(ReportRequest reportRequest) {
         ReportResponse reportResponse = new ReportResponse();
-        List<CityReportResponse> cityReportResponses = new ArrayList<>();
-        List<DistrictReportResponse> districtsReportResponses = new ArrayList<>();
-        List<SensorReportResponse> sensorReportResponses = new ArrayList<>();
         reportResponse.setCityHallId(reportRequest.getCityHallId());
         reportResponse.setDate(reportRequest.getFromDate().toString());
+        List<CityReportResponse> cityReportResponses = new ArrayList<>();
+        List<SensorReportResponse> sensorReportResponses = new ArrayList<>();
+        DistrictReportResponse districtReportResponse = new DistrictReportResponse();
+        SensorReportResponse sensorReportResponse = new SensorReportResponse();
+
 
         Optional<CityHall> cityHall = cityHallRepository.findById(reportRequest.getCityHallId());
         if (cityHall.isPresent()) {
             reportResponse.setCityHallName(cityHall.get().getCityHallName());
-            List<City> cities = cityRepository.findByCityHall_CityHallId(reportRequest.getCityHallId());
-            List<District> districts = districtRepository.findByCityHallId(reportRequest.getCityHallId());
-            List<Sensor> sensors = sensorRepository.findByCityHallId(reportRequest.getCityHallId());
-            //cityReportResponses ==> cities
+            getCitiesForCityHall(reportRequest, reportResponse, cityReportResponses);
+            //changed here for getSensorsForCityHall
+
             List<Double> readings = readingRepository.findReadingsByCityHallId(reportRequest.getCityHallId());
             DoubleSummaryStatistics doubleSummaryStatistics = new DoubleSummaryStatistics();
             for (Double d : readings) {
-
                 doubleSummaryStatistics.accept(d);
             }
             reportResponse.setCityHallMax(doubleSummaryStatistics.getMax());
@@ -64,30 +64,46 @@ public class ReportServiceImpl implements ReportService {
         }
 
 
+        return reportResponse;
+    }
 
-            for(Sensor sensor: sensors){
-                List<Reading> sensorReadings = readingRepository.findBySensor_sensorId(sensor.getSensorId());
-                SensorReportResponse sensorsReportResponse = new SensorReportResponse();
-                sensorsReportResponse.setSensorId(sensor.getSensorId());
-                sensorsReportResponse.setSensorName(sensor.getSensorName());
-                List<Double> readingValues = sensorReadings.stream().map(Reading::getValue).collect(Collectors.toList());
 
-                DoubleSummaryStatistics doubleSummarySensorReadingsStatistics = new DoubleSummaryStatistics();
-                for (Double d : readingValues) {
 
-                    doubleSummarySensorReadingsStatistics.accept(d);
-                }
-                sensorsReportResponse.setSensorMax(doubleSummarySensorReadingsStatistics.getMax());
-                sensorsReportResponse.setSensorMin(doubleSummarySensorReadingsStatistics.getMin());
-                sensorsReportResponse.setSensorAverage(doubleSummarySensorReadingsStatistics.getAverage());
+    private void getCitiesForCityHall(ReportRequest reportRequest, ReportResponse reportResponse, List<CityReportResponse> cityReportResponses) {
+        List<DistrictReportResponse> districtsReportResponses = new ArrayList<>();
+        List<City> cities = cityRepository.findByCityHall_CityHallId(reportRequest.getCityHallId());
+        for (City city : cities) {
+            List<Reading> cityReadings = readingRepository.findByCityId(city.getCityId());
+            getDistrictsForCity(city.getCityId(), districtsReportResponses);
 
-                sensorReportResponses.add(sensorsReportResponse);
+            CityReportResponse cityReportResponse = new CityReportResponse();
+            cityReportResponse.setCityId(city.getCityId());
+            cityReportResponse.setCityName(city.getCityName());
+            List<Double> readingValues = cityReadings.stream().map(Reading::getValue).collect(Collectors.toList());
+
+            DoubleSummaryStatistics doubleSummaryCityReadingsStatistics = new DoubleSummaryStatistics();
+            for (Double d : readingValues) {
+
+                doubleSummaryCityReadingsStatistics.accept(d);
             }
-            reportResponse.setSensors(sensorReportResponses);
+            cityReportResponse.setCityMax(doubleSummaryCityReadingsStatistics.getMax());
+            cityReportResponse.setCityMin(doubleSummaryCityReadingsStatistics.getMin());
+            cityReportResponse.setCityAverage(doubleSummaryCityReadingsStatistics.getAverage());
+            cityReportResponse.setNumberOfDistricts(districtsReportResponses.size());
+            cityReportResponse.setDistricts(districtsReportResponses);
+            cityReportResponses.add(cityReportResponse);
+        }
+        reportResponse.setCities(cityReportResponses);
+
+    }
 
 
-        for(District district: districts){
+    private void getDistrictsForCity(Integer cityId, List<DistrictReportResponse> districtsReportResponses) {
+        List<District> districts = districtRepository.findByCity_cityId(cityId);
+    //
+        for (District district : districts) {
             List<Reading> districtReadings = readingRepository.findByDistrictId(district.getDistrictId());
+
             DistrictReportResponse districtsReportResponse = new DistrictReportResponse();
             districtsReportResponse.setDistrictId(district.getDistrictId());
             districtsReportResponse.setDistrictName(district.getDistrictName());
@@ -101,42 +117,33 @@ public class ReportServiceImpl implements ReportService {
             districtsReportResponse.setDistrictMax(doubleSummaryDistrictReadingsStatistics.getMax());
             districtsReportResponse.setDistrictMin(doubleSummaryDistrictReadingsStatistics.getMin());
             districtsReportResponse.setDistrictAverage(doubleSummaryDistrictReadingsStatistics.getAverage());
-
+            districtsReportResponse.setSensors(getSensorsForDistrict(district.getDistrictId()));
             districtsReportResponses.add(districtsReportResponse);
         }
-        reportResponse.setDistricts(districtsReportResponses);
+    }
 
+    private List<SensorReportResponse> getSensorsForDistrict(Integer districtId) {
+        List<SensorReportResponse> sensorReportResponses = new ArrayList<>();
+        List<Sensor> sensors = sensorRepository.findByDistrict_districtId(districtId);
+        for (Sensor sensor : sensors) {
+            List<Reading> sensorReadings = readingRepository.findBySensor_sensorId(sensor.getSensorId());
+            SensorReportResponse sensorsReportResponse = new SensorReportResponse();
+            sensorsReportResponse.setSensorId(sensor.getSensorId());
+            sensorsReportResponse.setSensorName(sensor.getSensorName());
+            List<Double> readingValues = sensorReadings.stream().map(Reading::getValue).collect(Collectors.toList());
 
+            DoubleSummaryStatistics doubleSummarySensorReadingsStatistics = new DoubleSummaryStatistics();
+            for (Double d : readingValues) {
 
-
-            for (City city : cities) {
-                List<Reading> cityReadings = readingRepository.findByCityId(city.getCityId());
-                CityReportResponse cityReportResponse = new CityReportResponse();
-                cityReportResponse.setCityId(city.getCityId());
-                cityReportResponse.setCityName(city.getCityName());
-                List<Double> readingValues = cityReadings.stream().map(Reading::getValue).collect(Collectors.toList());
-
-                DoubleSummaryStatistics doubleSummaryCityReadingsStatistics = new DoubleSummaryStatistics();
-                for (Double d : readingValues) {
-
-                    doubleSummaryCityReadingsStatistics.accept(d);
-                }
-                cityReportResponse.setCityMax(doubleSummaryCityReadingsStatistics.getMax());
-                cityReportResponse.setCityMin(doubleSummaryCityReadingsStatistics.getMin());
-                cityReportResponse.setCityAverage(doubleSummaryCityReadingsStatistics.getAverage());
-
-                cityReportResponses.add(cityReportResponse);
+                doubleSummarySensorReadingsStatistics.accept(d);
             }
-            reportResponse.setCities(cityReportResponses);
+            sensorsReportResponse.setSensorMax(doubleSummarySensorReadingsStatistics.getMax());
+            sensorsReportResponse.setSensorMin(doubleSummarySensorReadingsStatistics.getMin());
+            sensorsReportResponse.setSensorAverage(doubleSummarySensorReadingsStatistics.getAverage());
 
-
-
-
-
-
-
-
-        return reportResponse;
+            sensorReportResponses.add(sensorsReportResponse);
+        }
+        return sensorReportResponses;
     }
 
 }

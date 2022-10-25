@@ -36,7 +36,10 @@ public class CityHallServiceImpl implements CityHallService {
 
         cityHallResponse.setCityHallId(cityHall.getCityHallId());
         cityHallResponse.setCityHallName(cityHall.getCityHallName());
-        cityHallResponse.setCityHallAddress(cityHall.getCityHallAddress());
+        if (cityHall.getCityHallAddress() != null) {
+            cityHallResponse.setCityHallAddress(cityHall.getCityHallAddress());
+        }
+
         cityHallResponse.setActive(cityHall.isActive());
         cityHallResponse.setCreateDate(cityHall.getCreateDate());
         cityHallResponse.setLastUpdate(cityHall.getLastUpdate());
@@ -71,7 +74,7 @@ public class CityHallServiceImpl implements CityHallService {
 
         CityHall save = cityHallRepository.save(cityHall.get());
         CityHallResponse cityHallResponse = new CityHallResponse();
-        BeanUtils.copyProperties(save,cityHallResponse);
+        BeanUtils.copyProperties(save, cityHallResponse);
         return cityHallResponse;
     }
 

@@ -31,7 +31,11 @@ public class DistrictServiceImpl implements DistrictService{
     @Override
     public DistrictResponse createDistrict(DistrictRequest districtRequest) throws NoDataFoundException {
         District district =   new District();
-        BeanUtils.copyProperties(districtRequest,district);
+       BeanUtils.copyProperties(districtRequest,district);
+        district.setDistrictId(districtRequest.getDistrictId());
+        district.setDistrictName(districtRequest.getDistrictName());
+        district.setDistrictZip(districtRequest.getDistrictZip());
+
 
         Optional<City> city = cityRepository.findById(districtRequest.getCityId());
 
@@ -73,7 +77,7 @@ public class DistrictServiceImpl implements DistrictService{
             district.get().getCity().setCityId(districtRequest.getCityId());
             district.get().setDistrictZip(districtRequest.getDistrictZip());
 
-            District updated =    district.get();
+            District updated =  district.get();
             updated = districtRepository.save(updated);
             DistrictResponse districtResponse = new DistrictResponse();
             BeanUtils.copyProperties(updated,districtResponse);
